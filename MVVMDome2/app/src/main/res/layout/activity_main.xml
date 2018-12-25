@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+   >
+
+    <data>
+        <!--导包，类似java导包。下面要用到这个枚举进行判断-->
+        <import type="com.coffe.shentao.mvvmdome2.vo.Status" />
+        <!--事件处理-->
+        <variable
+            name="eventHandler"
+            type="com.coffe.shentao.mvvmdome2.ui.MainEventHandler" />
+
+        <variable
+            name="user"
+            type="com.coffe.shentao.mvvmdome2.vo.User" />
+        <!--当前加载状态，上面导包了，这里就不用写全包名了-->
+        <variable
+            name="loadStatus"
+            type="Status" />
+
+        <variable
+            name="resource"
+            type="com.coffe.shentao.mvvmdome2.vo.Resource" />
+    </data>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp">
+        <!--app:onInputFinish,这个是自定义的接口，当输入完成后回调eventHandler.onTextSubmit(text)。-->
+        <!--BindingAdapter相关知识-->
+        <android.support.v7.widget.AppCompatEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:lines="1"
+            app:onInputFinish="@{(text)->eventHandler.onTextSubmit(text)}" />
+
+        <!--visibleGone,自定义的BindingAdapter，处理View的显示和隐藏-->
+        <!--当loadStatus为SUCCESS时显示此LinearLayout，绑定具体的用户信息-->
+        <LinearLayout
+            visibleGone="@{loadStatus==Status.SUCCESS}"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            >
+            <!--imgUrl,自定义的BindingAdapter，绑定ImageView的url，由Glide处理-->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:imgUrl="@{user.avatarUrl}" />
+            <!--@string,引用字符串，格式化user.name-->
+            <TextView
+                android:text="@{@string/format_name(user.name)}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:text="@{@string/format_repo(user.repoNumber)}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+            <TextView
+                android:text="@{@string/format_time(user.lastUpdate)}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+        </LinearLayout>
+
+        <!--当loadStatus为ERROR时显示此View，text绑定错误信息-->
+        <TextView
+            visibleGone="@{loadStatus==Status.ERROR}"
+            android:text="@{resource.message}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            />
+        <!--当loadStatus为LOADING时显示此View，表示正在请求-->
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            visibleGone="@{loadStatus==Status.LOADING}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+    </LinearLayout>
+
+</layout>
